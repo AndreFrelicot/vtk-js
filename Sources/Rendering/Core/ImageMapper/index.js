@@ -303,67 +303,9 @@ function vtkImageMapper(publicAPI, model) {
 
   publicAPI.getIsOpaque = () => true;
 
-  publicAPI.intersectWithLineForPointPicking = (p1, p2) => {
-    const imageData = publicAPI.getInputData();
-    const extent = imageData.getExtent();
-
-    // Slice origin
-    const ijk = [extent[0], extent[2], extent[4]];
-    const { ijkMode } = publicAPI.getClosestIJKAxis();
-    let nSlice = model.slice;
-    if (ijkMode !== model.slicingMode) {
-      // If not IJK slicing, get the IJK slice from the XYZ position/slice
-      nSlice = publicAPI.getSliceAtPosition(nSlice);
-    }
-    ijk[ijkMode] += nSlice;
-    const worldOrigin = [0, 0, 0];
-    imageData.indexToWorld(ijk, worldOrigin);
-
-    // Normal computation
-    ijk[ijkMode] += 1;
-    const worldNormal = [0, 0, 0];
-    imageData.indexToWorld(ijk, worldNormal);
-    worldNormal[0] -= worldOrigin[0];
-    worldNormal[1] -= worldOrigin[1];
-    worldNormal[2] -= worldOrigin[2];
-    vec3.normalize(worldNormal, worldNormal);
-
-    const intersect = vtkPlane.intersectWithLine(
-      p1,
-      p2,
-      worldOrigin,
-      worldNormal
-    );
-    if (intersect.intersection) {
-      const point = intersect.x;
-      const absoluteIJK = [0, 0, 0];
-      imageData.worldToIndex(point, absoluteIJK);
-
-      // Are we outside our actual extent/bounds
-      if (
-        absoluteIJK[0] < extent[0] ||
-        absoluteIJK[0] > extent[1] ||
-        absoluteIJK[1] < extent[2] ||
-        absoluteIJK[1] > extent[3] ||
-        absoluteIJK[2] < extent[4] ||
-        absoluteIJK[2] > extent[5]
-      ) {
-        return null;
-      }
-
-      // Get closer integer ijk
-      ijk[0] = Math.round(absoluteIJK[0]);
-      ijk[1] = Math.round(absoluteIJK[1]);
-      ijk[2] = Math.round(absoluteIJK[2]);
-
-      return {
-        ijk,
-        absoluteIJK,
-        point,
-      };
-    }
-    return null;
-  };
+  publicAPI.intersectWithLineForPointPicking = (p1, p2) =>
+    // TODO: Is this supposed to be the same?
+    publicAPI.intersectWithLineForCellPicking(p1, p2);
 
   publicAPI.intersectWithLineForCellPicking = (p1, p2) => {
     const imageData = publicAPI.getInputData();
