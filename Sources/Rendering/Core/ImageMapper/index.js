@@ -401,22 +401,22 @@ function vtkImageMapper(publicAPI, model) {
       const absoluteIJK = [0, 0, 0];
       imageData.worldToIndex(point, absoluteIJK);
 
+      // Get closer integer ijk
+      ijk[0] = Math.round(absoluteIJK[0]);
+      ijk[1] = Math.round(absoluteIJK[1]);
+      ijk[2] = Math.round(absoluteIJK[2]);
+
       // Are we outside our actual extent/bounds
       if (
-        absoluteIJK[0] < extent[0] ||
-        absoluteIJK[0] > extent[1] ||
-        absoluteIJK[1] < extent[2] ||
-        absoluteIJK[1] > extent[3] ||
-        absoluteIJK[2] < extent[4] ||
-        absoluteIJK[2] > extent[5]
+        ijk[0] < extent[0] ||
+        ijk[0] > extent[1] ||
+        ijk[1] < extent[2] ||
+        ijk[1] > extent[3] ||
+        ijk[2] < extent[4] ||
+        ijk[2] > extent[5]
       ) {
         return null;
       }
-
-      // Get closer integer ijk
-      ijk[0] = Math.floor(absoluteIJK[0]);
-      ijk[1] = Math.floor(absoluteIJK[1]);
-      ijk[2] = Math.floor(absoluteIJK[2]);
 
       return {
         ijk,
